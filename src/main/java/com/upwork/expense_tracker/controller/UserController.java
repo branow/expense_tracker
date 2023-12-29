@@ -1,6 +1,9 @@
 package com.upwork.expense_tracker.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -83,7 +86,15 @@ public class UserController {
 
     @Operation(summary = "Update Profile")
     @PutMapping("/updateProfile")
-    public List<String> signout(HttpServletRequest request, UpdateProfile updateProfile) {
+    public List<String> updateProfile(HttpServletRequest request, @RequestBody UpdateProfile updateProfile) {
+
         return userService.updateProfile(request.getHeader("authorization"), updateProfile);
+    }
+
+    @Operation(summary = "Get User Info")
+    @GetMapping("/getUser")
+    public Map<String, String> getUser(HttpServletRequest request) {
+
+        return userService.getUser(request.getHeader("authorization"));
     }
 }

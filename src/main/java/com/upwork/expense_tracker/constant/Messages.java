@@ -15,6 +15,10 @@ public class Messages {
     // Signout
     public static final String SIGNOUT = "signout";
 
+    // Method action
+    public static final String CREATE = "create";
+    public static final String UPDATE = "update";
+
     // type
     public static final String EARNED = "earned";
     public static final String SPENT = "spent";

@@ -78,9 +78,13 @@ public class InputsChecking {
         }
     }
 
-    public List<String> checkCreateTransaction(Transaction transaction) {
+    public List<String> checkCreateTransaction(Transaction transaction, String methodName) {
 
         List<String> response = new ArrayList<>();
+
+        if (methodName.equals(Messages.UPDATE) && transaction.getId() == null) {
+            response.add(Messages.EMPTY_TRANSACTION_ID);
+        }
 
         if (transaction.getType() == null || transaction.getType().isEmpty()) {
             response.add(Messages.EMPTY_TYPE);

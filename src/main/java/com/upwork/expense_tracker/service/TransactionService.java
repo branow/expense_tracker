@@ -39,7 +39,7 @@ public class TransactionService {
         }
         String userName = tokenUtility.extractUsername(token);
 
-        List<String> messages = inputsChecking.checkCreateTransaction(transaction);
+        List<String> messages = inputsChecking.checkCreateTransaction(transaction, Messages.CREATE);
         if (!messages.isEmpty()) {
             return messages;
         }
@@ -62,12 +62,15 @@ public class TransactionService {
             return Arrays.asList(Messages.INVALID_TOKEN);
         }
 
-        List<String> messages = inputsChecking.checkCreateTransaction(transaction);
+        List<String> messages = inputsChecking.checkCreateTransaction(transaction, Messages.UPDATE);
         if (!messages.isEmpty()) {
             return messages;
         }
 
-        optionalTransaction = transactionRepository.findById(transaction.getId());
+        String userName = tokenUtility.extractUsername(token);
+
+        optionalTransaction = transactionRepository.findByTransactionIdUserId(transaction.getId(), userRepository.findIdByEmail(userName));
+
         if (!optionalTransaction.isPresent()) {
             return Arrays.asList(Messages.INVALID_TRANSACTION);
         }

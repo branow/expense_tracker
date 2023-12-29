@@ -1,7 +1,9 @@
 package com.upwork.expense_tracker.service;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -70,5 +72,24 @@ public class UserService {
 
         tokenUtility.revokeToken(token);
         return Arrays.asList(Messages.SIGNOUT);
+    }
+
+    public Map<String, String> getUser(String token) {
+
+        HashMap<String, String> map = new HashMap<>();
+        if (token == null) {
+            map.put("error", Messages.EMPTY_TOKEN);
+            return map;
+        }
+        if (!tokenUtility.validateToken(token)) {
+            map.put("error", Messages.INVALID_TOKEN);
+            return map;
+        }
+        String userName = tokenUtility.extractUsername(token);
+        User user= userRepository.findByEmail(userName);
+
+        map.put("user_name", user.getEmail());
+        map.put("profile", user.getProfile());
+        return map;
     }
 }
