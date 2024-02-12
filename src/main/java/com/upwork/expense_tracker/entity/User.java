@@ -18,7 +18,7 @@ public class User {
     private String email;
     private String password;
 
-    @Column(length = 90000 ,columnDefinition = "TEXT")
+    @Column(length = 90000, columnDefinition = "TEXT")
     private String profile;
 
     public int getId() {

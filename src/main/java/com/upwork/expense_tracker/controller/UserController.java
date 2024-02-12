@@ -1,6 +1,5 @@
 package com.upwork.expense_tracker.controller;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,21 +36,21 @@ public class UserController {
 
     @Operation(summary = "Create User")
     @PostMapping("/createUser")
-    public List<String> createUser(@RequestBody User user) {
+    public Object createUser(@RequestBody User user) {
 
         return userService.createUser(user);
     }
 
     @Operation(summary = "Login User")
     @PostMapping("/loginUser")
-    public List<String> loginUser(@RequestBody LoginUser loginUser) {
+    public Object loginUser(@RequestBody LoginUser loginUser) {
 
         return userService.loginUser(loginUser);
     }
 
     @Operation(summary = "Create Transaction")
     @PostMapping("/createTransaction")
-    public List<String> createTransaction(HttpServletRequest request, @RequestBody Transaction transaction) {
+    public Object createTransaction(HttpServletRequest request, @RequestBody Transaction transaction) {
 
         return transactionService.createTransaction(transaction, request.getHeader("authorization"));
     }
@@ -65,14 +64,14 @@ public class UserController {
 
     @Operation(summary = "Update Transaction")
     @PutMapping("/updateTransaction")
-    public List<String> updateTransaction(HttpServletRequest request, @RequestBody Transaction transaction) {
+    public Object updateTransaction(HttpServletRequest request, @RequestBody Transaction transaction) {
 
         return transactionService.updateTransaction(transaction, request.getHeader("authorization"));
     }
 
     @Operation(summary = "Delete Transaction")
     @DeleteMapping("/deleteTransaction")
-    public List<String> deleteTransaction(HttpServletRequest request, @RequestParam Integer transaction_id) {
+    public Object deleteTransaction(HttpServletRequest request, @RequestParam Integer transaction_id) {
 
         return transactionService.deleteTransaction(transaction_id, request.getHeader("authorization"));
     }
@@ -86,7 +85,7 @@ public class UserController {
 
     @Operation(summary = "Update Profile")
     @PutMapping("/updateProfile")
-    public List<String> updateProfile(HttpServletRequest request, @RequestBody UpdateProfile updateProfile) {
+    public Object updateProfile(HttpServletRequest request, @RequestBody UpdateProfile updateProfile) {
 
         return userService.updateProfile(request.getHeader("authorization"), updateProfile);
     }
@@ -96,5 +95,12 @@ public class UserController {
     public Map<String, String> getUser(HttpServletRequest request) {
 
         return userService.getUser(request.getHeader("authorization"));
+    }
+
+    @Operation(summary = "Refresh Token")
+    @PostMapping("/refreshToken")
+    public List<String> refreshToken(HttpServletRequest request) {
+
+        return userService.refreshToken(request.getHeader("authorization"));
     }
 }

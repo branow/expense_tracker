@@ -2,7 +2,10 @@ package com.upwork.expense_tracker.service;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,22 +31,27 @@ public class TransactionService {
     @Autowired
     TokenUtility tokenUtility;
 
-    public List<String> createTransaction(Transaction transaction, String token) {
+    public Object createTransaction(Transaction transaction, String token) {
+
+        HashMap<String, String> map = new LinkedHashMap<>();
 
         if (token == null) {
-            return Arrays.asList(Messages.EMPTY_TOKEN);
+            map.put("error_code", Messages.EMPTY_TOKEN);
+            map.put("error_description", Messages.EMPTY_TOKEN_MESSAGE);
+            return map;
         }
 
         if (!tokenUtility.validateToken(token)) {
-            return Arrays.asList(Messages.INVALID_TOKEN);
+            map.put("error_code", Messages.INVALID_TOKEN);
+            map.put("error_description", Messages.INVALID_TOKEN_MESSAGE);
+            return map;
         }
         String userName = tokenUtility.extractUsername(token);
 
-        List<String> messages = inputsChecking.checkCreateTransaction(transaction, Messages.CREATE);
+        Map<String, String> messages = inputsChecking.checkCreateTransaction(transaction, Messages.CREATE);
         if (!messages.isEmpty()) {
             return messages;
         }
-
         Integer userId = userRepository.findIdByEmail(userName);
         transaction.setUserId(userId);
         transaction.setDate(new Date());
@@ -51,49 +59,66 @@ public class TransactionService {
         return Arrays.asList(Messages.SUCCESS);
     }
 
-    public List<String> updateTransaction(Transaction transaction, String token) {
+    public Object updateTransaction(Transaction transaction, String token) {
+
+        HashMap<String, String> map = new LinkedHashMap<>();
 
         Optional<Transaction> optionalTransaction;
         if (token == null) {
-            return Arrays.asList(Messages.EMPTY_TOKEN);
+            map.put("error_code", Messages.EMPTY_TOKEN);
+            map.put("error_description", Messages.EMPTY_TOKEN_MESSAGE);
+            return map;
         }
 
         if (!tokenUtility.validateToken(token)) {
-            return Arrays.asList(Messages.INVALID_TOKEN);
+            map.put("error_code", Messages.INVALID_TOKEN);
+            map.put("error_description", Messages.INVALID_TOKEN_MESSAGE);
+            return map;
         }
 
-        List<String> messages = inputsChecking.checkCreateTransaction(transaction, Messages.UPDATE);
+        Map<String, String> messages = inputsChecking.checkCreateTransaction(transaction, Messages.UPDATE);
         if (!messages.isEmpty()) {
             return messages;
         }
-
         String userName = tokenUtility.extractUsername(token);
 
-        optionalTransaction = transactionRepository.findByTransactionIdUserId(transaction.getId(), userRepository.findIdByEmail(userName));
+        optionalTransaction = transactionRepository.findByTransactionIdUserId(transaction.getId(),
+                userRepository.findIdByEmail(userName));
 
         if (!optionalTransaction.isPresent()) {
-            return Arrays.asList(Messages.INVALID_TRANSACTION);
+            map.put("error_code", Messages.INVALID_TRANSACTION);
+            map.put("error_description", Messages.INVALID_TRANSACTION_MESSAGE);
+            return map;
         }
         Transaction getTransaction = optionalTransaction.get();
         getTransaction.setType(transaction.getType());
+        getTransaction.setTag(transaction.getTag());
         getTransaction.setDescription(transaction.getDescription());
 
         transactionRepository.save(getTransaction);
         return Arrays.asList(Messages.SUCCESS);
     }
 
-    public List<String> deleteTransaction(Integer id, String token) {
+    public Object deleteTransaction(Integer id, String token) {
+
+        HashMap<String, String> map = new LinkedHashMap<>();
 
         if (token == null) {
-            return Arrays.asList(Messages.EMPTY_TOKEN);
+            map.put("error_code", Messages.EMPTY_TOKEN);
+            map.put("error_description", Messages.EMPTY_TOKEN_MESSAGE);
+            return map;
         }
 
         if (!tokenUtility.validateToken(token)) {
-            return Arrays.asList(Messages.INVALID_TOKEN);
+            map.put("error_code", Messages.INVALID_TOKEN);
+            map.put("error_description", Messages.INVALID_TOKEN_MESSAGE);
+            return map;
         }
 
         if (id == null) {
-            return Arrays.asList(Messages.EMPTY_TRANSACTION_ID);
+            map.put("error_code", Messages.EMPTY_TRANSACTION_ID);
+            map.put("error_description", Messages.EMPTY_TRANSACTION_ID_MESSAGE);
+            return map;
         }
 
         transactionRepository.deleteById(id);
@@ -102,12 +127,18 @@ public class TransactionService {
 
     public Object getTransactions(String token) {
 
+        HashMap<String, String> map = new LinkedHashMap<>();
+
         if (token == null) {
-            return Arrays.asList(Messages.EMPTY_TOKEN);
+            map.put("error_code", Messages.EMPTY_TOKEN);
+            map.put("error_description", Messages.EMPTY_TOKEN_MESSAGE);
+            return map;
         }
 
         if (!tokenUtility.validateToken(token)) {
-            return Arrays.asList(Messages.INVALID_TOKEN);
+            map.put("error_code", Messages.INVALID_TOKEN);
+            map.put("error_description", Messages.INVALID_TOKEN_MESSAGE);
+            return map;
         }
         String userName = tokenUtility.extractUsername(token);
 

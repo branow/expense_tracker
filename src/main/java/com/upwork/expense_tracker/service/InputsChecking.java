@@ -2,8 +2,9 @@ package com.upwork.expense_tracker.service;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import javax.imageio.ImageIO;
 import org.apache.commons.codec.binary.Base64;
 import java.awt.image.BufferedImage;
@@ -23,43 +24,55 @@ public class InputsChecking {
     @Autowired
     UserRepository userRepository;
 
-    public List<String> checkCreateUser(User user) {
+    public Map<String, String> checkCreateUser(User user) {
 
-        List<String> response = new ArrayList<>();
+        Map<String, String> response = new LinkedHashMap<>();
 
         if (user.getEmail() == null || user.getEmail().isEmpty()) {
-            response.add(Messages.EMPTY_EMAIL);
+            response.put("error_code", Messages.EMPTY_EMAIL);
+            response.put("error_description", Messages.EMPTY_EMAIL_MESSAGE);
+
         } else if (userRepository.existsByEmail(user.getEmail())) {
-            response.add(Messages.EMAIL_ALREADY_EXISTS);
+            response.put("error_code", Messages.EMAIL_ALREADY_EXISTS);
+            response.put("error_description", Messages.EMAIL_ALREADY_EXISTS_MESSAGE);
+
         }
         if (user.getPassword() == null || user.getPassword().isEmpty()) {
-            response.add(Messages.EMPTY_PASSWORD);
+            response.put("error_code", Messages.EMPTY_PASSWORD);
+            response.put("error_description", Messages.EMPTY_PASSWORD_MESSAGE);
         }
         if (user.getProfile() == null || user.getProfile().isEmpty()) {
-            response.add(Messages.EMPTY_PROFILE);
+            response.put("error_code", Messages.EMPTY_PROFILE);
+            response.put("error_description", Messages.EMPTY_PROFILE_MESSAGE);
         } else if (!isBase64Image(user.getProfile())) {
-            response.add(Messages.INVALID_IMAGE);
+            response.put("error_code", Messages.INVALID_IMAGE);
+            response.put("error_description", Messages.INVALID_IMAGE_MESSAGE);
         }
 
         return response;
     }
 
-    public List<String> checkLoginUser(LoginUser loginUser) {
+    public Map<String, String> checkLoginUser(LoginUser loginUser) {
 
-        List<String> response = new ArrayList<>();
+        Map<String, String> response = new LinkedHashMap<>();
 
         if (loginUser.getEmail() == null || loginUser.getEmail().isEmpty()) {
-            response.add(Messages.EMPTY_EMAIL);
+            response.put("error_code", Messages.EMPTY_EMAIL);
+            response.put("error_description", Messages.EMPTY_EMAIL_MESSAGE);
         } else if (!userRepository.existsByEmail(loginUser.getEmail())) {
-            response.add(Messages.WRONG_EMAIL);
+            response.put("error_code", Messages.WRONG_EMAIL);
+            response.put("error_description", Messages.WRONG_EMAIL_MESSAGE);
         }
 
         if (loginUser.getPassword() == null || loginUser.getPassword().isEmpty()) {
-            response.add(Messages.EMPTY_PASSWORD);
+            response.put("error_code", Messages.EMPTY_PASSWORD);
+            response.put("error_description", Messages.EMPTY_PASSWORD_MESSAGE);
 
         } else if (loginUser.getEmail() != null
                 && !userRepository.existsByEmailAndPassword(loginUser.getEmail(), loginUser.getPassword())) {
-            response.add(Messages.WRONG_PASSWORD);
+
+            response.put("error_code", Messages.WRONG_PASSWORD);
+            response.put("error_description", Messages.WRONG_PASSWORD_MESSAGE);
         }
 
         return response;
@@ -78,55 +91,64 @@ public class InputsChecking {
         }
     }
 
-    public List<String> checkCreateTransaction(Transaction transaction, String methodName) {
+    public Map<String, String> checkCreateTransaction(Transaction transaction, String methodName) {
 
-        List<String> response = new ArrayList<>();
+        Map<String, String> response = new LinkedHashMap<>();
 
         if (methodName.equals(Messages.UPDATE) && transaction.getId() == null) {
-            response.add(Messages.EMPTY_TRANSACTION_ID);
+            response.put("error_code", Messages.EMPTY_TRANSACTION_ID);
+            response.put("error_description", Messages.EMPTY_TRANSACTION_ID_MESSAGE);
         }
 
         if (transaction.getType() == null || transaction.getType().isEmpty()) {
-            response.add(Messages.EMPTY_TYPE);
+            response.put("error_code", Messages.EMPTY_TYPE);
+            response.put("error_description", Messages.EMPTY_TYPE_MESSAGE);
         } else if (!transaction.getType().equals(Messages.EARNED) && !transaction.getType().equals(Messages.SPENT)) {
-            response.add(Messages.INVALID_TYPE);
+            response.put("error_code", Messages.INVALID_TYPE);
+            response.put("error_description", Messages.INVALID_TYPE_MESSAGE);
         }
         if (transaction.getDescription() == null || transaction.getDescription().isEmpty()) {
-            response.add(Messages.EMPTY_DESCRIPTION);
+            response.put("error_code", Messages.EMPTY_DESCRIPTION);
+            response.put("error_description", Messages.EMPTY_DESCRIPTION_MESSAGE);
         }
 
         return response;
     }
 
-    public List<String> checkUpdateTransaction(Transaction transaction) {
+    public Map<String, String> checkUpdateTransaction(Transaction transaction) {
 
-        List<String> response = new ArrayList<>();
+        Map<String, String> response = new LinkedHashMap<>();
 
         if (transaction.getId() == null) {
-            response.add(Messages.EMPTY_TRANSACTION_ID);
+            response.put("error_code", Messages.EMPTY_TRANSACTION_ID);
+            response.put("error_description", Messages.EMPTY_TRANSACTION_ID_MESSAGE);
         }
         if (transaction.getType() == null || transaction.getType().isEmpty()) {
-            response.add(Messages.EMPTY_TYPE);
+            response.put("error_code", Messages.EMPTY_TYPE);
+            response.put("error_description", Messages.EMPTY_TYPE_MESSAGE);
         } else if (!transaction.getType().equals(Messages.EARNED) && !transaction.getType().equals(Messages.SPENT)) {
-            response.add(Messages.INVALID_TYPE);
+            response.put("error_code", Messages.INVALID_TYPE);
+            response.put("error_description", Messages.INVALID_TYPE_MESSAGE);
         }
         if (transaction.getDescription() == null || transaction.getDescription().isEmpty()) {
-            response.add(Messages.EMPTY_DESCRIPTION);
+            response.put("error_code", Messages.EMPTY_DESCRIPTION);
+            response.put("error_description", Messages.EMPTY_DESCRIPTION_MESSAGE);
         }
 
         return response;
     }
 
-    public List<String> checkUpdateProfile(UpdateProfile updateProfile) {
+    public Map<String, String> checkUpdateProfile(UpdateProfile updateProfile) {
 
-        List<String> response = new ArrayList<>();
+        Map<String, String> response = new LinkedHashMap<>();
 
         if (updateProfile.getProfile() == null || updateProfile.getProfile().isEmpty()) {
-            response.add(Messages.EMPTY_PROFILE);
+            response.put("error_code", Messages.EMPTY_PROFILE);
+            response.put("error_description", Messages.EMPTY_PROFILE_MESSAGE);
         } else if (!isBase64Image(updateProfile.getProfile())) {
-            response.add(Messages.INVALID_IMAGE);
+            response.put("error_code", Messages.INVALID_IMAGE);
+            response.put("error_description", Messages.INVALID_IMAGE_MESSAGE);
         }
         return response;
     }
-
 }

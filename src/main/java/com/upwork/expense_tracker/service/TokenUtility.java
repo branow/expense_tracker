@@ -81,4 +81,13 @@ public class TokenUtility {
     public void revokeToken(String token) {
         revokedTokens.add(token);
     }
+
+    public String refreshAccessToken(String refreshToken) {
+
+        String username = extractUsername(refreshToken);
+        if (username != null) {
+            return generateToken(username);
+        }
+        return null;
+    }
 }

@@ -2,6 +2,7 @@ package com.upwork.expense_tracker.service;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,9 +27,9 @@ public class UserService {
     @Autowired
     TokenUtility tokenUtility;
 
-    public List<String> createUser(User user) {
+    public Object createUser(User user) {
 
-        List<String> messages = inputsChecking.checkCreateUser(user);
+        Map<String, String> messages = inputsChecking.checkCreateUser(user);
         if (!messages.isEmpty()) {
             return messages;
         }
@@ -37,16 +38,16 @@ public class UserService {
         return Arrays.asList(Messages.SUCCESS);
     }
 
-    public List<String> loginUser(LoginUser loginUser) {
+    public Object loginUser(LoginUser loginUser) {
 
-        List<String> messages = inputsChecking.checkLoginUser(loginUser);
+        Map<String, String> messages = inputsChecking.checkLoginUser(loginUser);
         if (!messages.isEmpty()) {
             return messages;
         }
         return Arrays.asList(tokenUtility.generateToken(loginUser.getEmail()));
     }
 
-    public List<String> updateProfile(String token, UpdateProfile updateProfile) {
+    public Object updateProfile(String token, UpdateProfile updateProfile) {
 
         if (token == null) {
             return Arrays.asList(Messages.EMPTY_TOKEN);
@@ -56,7 +57,7 @@ public class UserService {
         }
         String userName = tokenUtility.extractUsername(token);
 
-        List<String> messages = inputsChecking.checkUpdateProfile(updateProfile);
+        Map<String, String> messages = inputsChecking.checkUpdateProfile(updateProfile);
         if (!messages.isEmpty()) {
             return messages;
         }
@@ -76,7 +77,7 @@ public class UserService {
 
     public Map<String, String> getUser(String token) {
 
-        HashMap<String, String> map = new HashMap<>();
+        HashMap<String, String> map = new LinkedHashMap<>();
         if (token == null) {
             map.put("error", Messages.EMPTY_TOKEN);
             return map;
@@ -86,10 +87,14 @@ public class UserService {
             return map;
         }
         String userName = tokenUtility.extractUsername(token);
-        User user= userRepository.findByEmail(userName);
+        User user = userRepository.findByEmail(userName);
 
         map.put("user_name", user.getEmail());
         map.put("profile", user.getProfile());
         return map;
+    }
+
+    public List<String> refreshToken(String token) {
+        return Arrays.asList(tokenUtility.refreshAccessToken(token));
     }
 }

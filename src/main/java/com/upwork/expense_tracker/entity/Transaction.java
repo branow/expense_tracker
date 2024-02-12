@@ -19,9 +19,11 @@ public class Transaction {
 
     private String type;
 
+    private String tag;
+
     private String description;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private Date date;
 
     private int user_id;
@@ -40,6 +42,14 @@ public class Transaction {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getTag() {
+        return tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
     public String getDescription() {
