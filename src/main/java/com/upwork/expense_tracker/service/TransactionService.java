@@ -5,6 +5,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.upwork.expense_tracker.dto.TransactionCreatingRequest;
+import com.upwork.expense_tracker.dto.TransactionUpdatingRequest;
+import com.upwork.expense_tracker.exception.EntityNotFoundException;
+import com.upwork.expense_tracker.mapper.TransactionMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,13 +27,12 @@ public class TransactionService {
     UserRepository userRepository;
 
     @Autowired
-    InputsChecking inputsChecking;
-
-    @Autowired
     TokenUtility tokenUtility;
 
-    public List<String> createTransaction(Transaction transaction, String token) {
+    @Autowired
+    TransactionMapper mapper;
 
+    public List<String> createTransaction(TransactionCreatingRequest dto, String token) {
         if (token == null) {
             return Arrays.asList(Messages.EMPTY_TOKEN);
         }
@@ -39,19 +42,16 @@ public class TransactionService {
         }
         String userName = tokenUtility.extractUsername(token);
 
-        List<String> messages = inputsChecking.checkCreateTransaction(transaction, Messages.CREATE);
-        if (!messages.isEmpty()) {
-            return messages;
-        }
-
         Integer userId = userRepository.findIdByEmail(userName);
+
+        Transaction transaction = mapper.toTransaction(dto);
         transaction.setUserId(userId);
         transaction.setDate(new Date());
         transactionRepository.save(transaction);
         return Arrays.asList(Messages.SUCCESS);
     }
 
-    public List<String> updateTransaction(Transaction transaction, String token) {
+    public List<String> updateTransaction(TransactionUpdatingRequest transaction, String token) {
 
         Optional<Transaction> optionalTransaction;
         if (token == null) {
@@ -62,19 +62,13 @@ public class TransactionService {
             return Arrays.asList(Messages.INVALID_TOKEN);
         }
 
-        List<String> messages = inputsChecking.checkCreateTransaction(transaction, Messages.UPDATE);
-        if (!messages.isEmpty()) {
-            return messages;
-        }
-
         String userName = tokenUtility.extractUsername(token);
 
         optionalTransaction = transactionRepository.findByTransactionIdUserId(transaction.getId(), userRepository.findIdByEmail(userName));
 
-        if (!optionalTransaction.isPresent()) {
-            return Arrays.asList(Messages.INVALID_TRANSACTION);
-        }
-        Transaction getTransaction = optionalTransaction.get();
+        Transaction getTransaction = optionalTransaction.orElseThrow(() ->
+                new EntityNotFoundException(Transaction.class, "id", transaction.getId()));
+
         getTransaction.setType(transaction.getType());
         getTransaction.setDescription(transaction.getDescription());
 

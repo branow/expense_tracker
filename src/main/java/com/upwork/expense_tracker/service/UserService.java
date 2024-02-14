@@ -5,12 +5,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.upwork.expense_tracker.dto.ProfileUpdatingRequest;
+import com.upwork.expense_tracker.dto.UserCreatingRequest;
+import com.upwork.expense_tracker.dto.UserLoginRequest;
+import com.upwork.expense_tracker.exception.EntityAlreadyExistsException;
+import com.upwork.expense_tracker.exception.EntityNotFoundException;
+import com.upwork.expense_tracker.mapper.UserMapper;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.upwork.expense_tracker.constant.Messages;
 import com.upwork.expense_tracker.entity.LoginUser;
-import com.upwork.expense_tracker.entity.UpdateProfile;
 import com.upwork.expense_tracker.entity.User;
 import com.upwork.expense_tracker.repository.UserRepository;
 
@@ -18,35 +26,33 @@ import com.upwork.expense_tracker.repository.UserRepository;
 public class UserService {
 
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    InputsChecking inputsChecking;
+    private TokenUtility tokenUtility;
 
     @Autowired
-    TokenUtility tokenUtility;
+    private UserMapper mapper;
 
-    public List<String> createUser(User user) {
-
-        List<String> messages = inputsChecking.checkCreateUser(user);
-        if (!messages.isEmpty()) {
-            return messages;
+    public List<String> createUser(UserCreatingRequest user) {
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new EntityAlreadyExistsException(User.class, "email", user.getEmail());
         }
-
-        userRepository.save(user);
+        userRepository.save(mapper.toUser(user));
         return Arrays.asList(Messages.SUCCESS);
     }
 
-    public List<String> loginUser(LoginUser loginUser) {
-
-        List<String> messages = inputsChecking.checkLoginUser(loginUser);
-        if (!messages.isEmpty()) {
-            return messages;
+    public List<String> loginUser(UserLoginRequest user) {
+        if (!userRepository.existsByEmail(user.getEmail())) {
+            throw new EntityNotFoundException(User.class, "email", user.getEmail());
         }
-        return Arrays.asList(tokenUtility.generateToken(loginUser.getEmail()));
+        if (!userRepository.existsByEmailAndPassword(user.getEmail(), user.getPassword())) {
+            return Arrays.asList(Messages.WRONG_PASSWORD);
+        }
+        return Arrays.asList(tokenUtility.generateToken(user.getEmail()));
     }
 
-    public List<String> updateProfile(String token, UpdateProfile updateProfile) {
+    public List<String> updateProfile(String token, ProfileUpdatingRequest profileDto) {
 
         if (token == null) {
             return Arrays.asList(Messages.EMPTY_TOKEN);
@@ -56,13 +62,8 @@ public class UserService {
         }
         String userName = tokenUtility.extractUsername(token);
 
-        List<String> messages = inputsChecking.checkUpdateProfile(updateProfile);
-        if (!messages.isEmpty()) {
-            return messages;
-        }
-
         User user = userRepository.findByEmail(userName);
-        user.setProfile(updateProfile.getProfile());
+        user.setProfile(profileDto.getProfile());
 
         userRepository.save(user);
         return Arrays.asList(Messages.SUCCESS);
