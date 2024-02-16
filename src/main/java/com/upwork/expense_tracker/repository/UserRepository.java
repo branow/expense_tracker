@@ -6,6 +6,8 @@ import org.springframework.data.repository.query.Param;
 
 import com.upwork.expense_tracker.entity.User;
 
+import java.util.Optional;
+
 public interface UserRepository extends JpaRepository<User, Integer> {
 
     @Query("SELECT COUNT(u) > 0 FROM User u WHERE u.email = :email")
@@ -18,5 +20,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Integer findIdByEmail(@Param("email") String email);
 
     @Query("SELECT u FROM User u WHERE u.email = :email")
-    User findByEmail(@Param("email") String email);
+    Optional<User> findByEmail(@Param("email") String email);
+
 }
