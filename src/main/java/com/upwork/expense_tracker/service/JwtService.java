@@ -54,7 +54,7 @@ public class JwtService {
     }
 
     private String getJwtFromBarerToken(String token) {
-        return token.replaceFirst("bearer ", "");
+        return token.replaceFirst("Bearer ", "");
     }
 
 }

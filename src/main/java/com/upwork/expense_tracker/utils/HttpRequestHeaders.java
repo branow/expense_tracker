@@ -21,13 +21,13 @@ public class HttpRequestHeaders {
     }
 
     public String getJwt() {
-        String bearer = "bearer ";
+        String bearer = "Bearer ";
         String headAuth = getAuthorizationHeader();
 
         if (headAuth == null)
             throw new AuthorizationHeaderParsingException("Authorization header not found");
         if (!headAuth.startsWith(bearer))
-            throw new AuthorizationHeaderParsingException("Authorization header does not start with 'bearer' - " + headAuth);
+            throw new AuthorizationHeaderParsingException("Authorization header does not start with 'Bearer ' - " + headAuth);
 
         return headAuth.replaceFirst(bearer, "");
     }
