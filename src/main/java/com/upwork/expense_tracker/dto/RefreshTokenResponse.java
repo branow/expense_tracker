@@ -8,8 +8,10 @@ import lombok.experimental.FieldDefaults;
 @Data
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TokenLoginResponse {
+public class RefreshTokenResponse {
 
-    String jwt;
+    String refreshToken;
+    String accessToken;
+    String tokenType;
 
 }
