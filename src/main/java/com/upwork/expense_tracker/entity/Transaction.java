@@ -29,7 +29,6 @@ public class Transaction {
 
     private String description;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date date;
 
     private Integer userId;
