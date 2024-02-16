@@ -1,9 +1,6 @@
 package com.upwork.expense_tracker.controller.advice;
 
-import com.upwork.expense_tracker.exception.AuthorizationHeaderParsingException;
-import com.upwork.expense_tracker.exception.EntityAlreadyExistsException;
-import com.upwork.expense_tracker.exception.EntityNotFoundException;
-import com.upwork.expense_tracker.exception.IllegalEntityAccessException;
+import com.upwork.expense_tracker.exception.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -25,6 +22,12 @@ import java.util.stream.Collectors;
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
 
+    @ExceptionHandler(TokenRefreshException.class)
+    protected ResponseEntity<Object> handleTokenRefresh(TokenRefreshException ex) {
+        String error = ex.getCauseMessage();
+        return buildResponseEntityForbidden(ex, error);
+    }
+
     @ExceptionHandler(AuthorizationHeaderParsingException.class)
     protected ResponseEntity<Object> handleAuthorizationHeaderParsing(AuthorizationHeaderParsingException ex) {
         String error = "Illegal format of authorization header.";
@@ -34,7 +37,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(IllegalEntityAccessException.class)
     protected ResponseEntity<Object> handleIllegalEntityAccess(IllegalEntityAccessException ex) {
         String error = "You cannot perform this operation on this resource.";
-        return buildResponseEntity(new ApiError(HttpStatus.FORBIDDEN, error, ex));
+        return buildResponseEntityForbidden(ex, error);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
@@ -76,6 +79,10 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     private ResponseEntity<Object> buildResponseEntityBadRequest(Exception ex, String message) {
         return buildResponseEntity(new ApiError(HttpStatus.BAD_REQUEST, message, ex));
+    }
+
+    private ResponseEntity<Object> buildResponseEntityForbidden(Exception ex, String message) {
+        return buildResponseEntity(new ApiError(HttpStatus.FORBIDDEN, message, ex));
     }
 
     private ResponseEntity<Object> buildResponseEntity(ApiError apiError) {
