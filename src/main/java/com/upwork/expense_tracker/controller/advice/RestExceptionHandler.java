@@ -1,7 +1,9 @@
 package com.upwork.expense_tracker.controller.advice;
 
+import com.upwork.expense_tracker.exception.AuthorizationHeaderParsingException;
 import com.upwork.expense_tracker.exception.EntityAlreadyExistsException;
 import com.upwork.expense_tracker.exception.EntityNotFoundException;
+import com.upwork.expense_tracker.exception.IllegalEntityAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -22,6 +24,18 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
+
+    @ExceptionHandler(AuthorizationHeaderParsingException.class)
+    protected ResponseEntity<Object> handleAuthorizationHeaderParsing(AuthorizationHeaderParsingException ex) {
+        String error = "Illegal format of authorization header.";
+        return buildResponseEntityBadRequest(ex, error);
+    }
+
+    @ExceptionHandler(IllegalEntityAccessException.class)
+    protected ResponseEntity<Object> handleIllegalEntityAccess(IllegalEntityAccessException ex) {
+        String error = "You cannot perform this operation on this resource.";
+        return buildResponseEntity(new ApiError(HttpStatus.FORBIDDEN, error, ex));
+    }
 
     @ExceptionHandler(EntityNotFoundException.class)
     protected ResponseEntity<Object> handleEntityNotFound(EntityNotFoundException ex) {
