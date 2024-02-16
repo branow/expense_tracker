@@ -1,9 +1,7 @@
 package com.upwork.expense_tracker.service;
 
-import com.upwork.expense_tracker.dto.TokenLoginResponse;
-import com.upwork.expense_tracker.dto.UserCreatingRequest;
-import com.upwork.expense_tracker.dto.UserLoginRequest;
-import com.upwork.expense_tracker.dto.UserResponse;
+import com.upwork.expense_tracker.dto.*;
+import com.upwork.expense_tracker.entity.RefreshToken;
 import com.upwork.expense_tracker.entity.User;
 import com.upwork.expense_tracker.exception.EntityAlreadyExistsException;
 import com.upwork.expense_tracker.exception.EntityNotFoundException;
@@ -28,6 +26,7 @@ public class AuthenticationService {
     UserMapper mapper;
     AuthenticationManager manager;
     JwtService jwtService;
+    RefreshTokenService refreshTokenService;
     PasswordEncoder passwordEncoder;
 
 
@@ -38,9 +37,9 @@ public class AuthenticationService {
         return mapper.toUserResponse(repository.save(mapper.toUser(user)));
     }
 
-    public TokenLoginResponse login(UserLoginRequest user) {
-        if (!repository.existsByEmail(user.getEmail()))
-            throw new EntityNotFoundException(User.class, "email", user.getEmail());
+    public UserLoginResponse login(UserLoginRequest user) {
+        User userEntity = repository.findByEmail(user.getEmail())
+                .orElseThrow(() -> new EntityNotFoundException(User.class, "email", user.getEmail()));
 
         UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
@@ -48,9 +47,23 @@ public class AuthenticationService {
         UserDetails userDetails = (UserDetails) auth.getPrincipal();
         String jwt = jwtService.generateJwt(userDetails);
 
-        return TokenLoginResponse.builder()
-                .jwt(jwt)
+        RefreshToken refreshToken = refreshTokenService.createRefreshToken(userEntity.getId());
+        return mapper.toUserLoginResponse(userEntity, refreshToken, jwt, "Bearer");
+    }
+
+    public RefreshTokenResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
+        RefreshToken refreshToken = refreshTokenService.getByToken(refreshTokenRequest.getToken());
+        refreshTokenService.verifyExpiration(refreshToken);
+        String jwt = jwtService.generateJwt(mapper.toUserDetails(refreshToken.getUser()));
+        return RefreshTokenResponse.builder()
+                .refreshToken(refreshToken.getToken())
+                .accessToken(jwt)
+                .tokenType("Bearer")
                 .build();
+    }
+
+    public void logout(String userEmail) {
+        refreshTokenService.deleteByUserId(repository.findIdByEmail(userEmail));
     }
 
 }
