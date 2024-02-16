@@ -68,10 +68,16 @@ public class WebSecurityConfig {
         //Turn off default session creation
         http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
+        http.logout((logout) ->  {
+            logout.logoutSuccessUrl("/logout/delete-refresh-token");
+        });
+
         http.authorizeHttpRequests((auth) -> {
             //Authentication Controller
             auth.requestMatchers(HttpMethod.POST, "/register").permitAll();
             auth.requestMatchers(HttpMethod.POST, "/login").permitAll();
+            auth.requestMatchers(HttpMethod.POST, "/refresh-token").permitAll();
+            auth.requestMatchers(HttpMethod.GET, "/logout/delete-refresh-token").authenticated();
             //User Controller
             auth.requestMatchers(HttpMethod.GET, "/user/get").authenticated();
             auth.requestMatchers(HttpMethod.PUT, "/user/update-profile").authenticated();
