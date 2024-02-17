@@ -26,7 +26,7 @@ public class EntityAccessManager {
         Integer transactionUserId = transactionService.get(transactionId).getUserId();
         if (!Objects.equals(userId, transactionUserId)) {
             throw new IllegalEntityAccessException("User with email = " + userEmail,
-                    "Transaction with id " + transactionId);
+                    "Transaction with id = " + transactionId);
         }
     }
 

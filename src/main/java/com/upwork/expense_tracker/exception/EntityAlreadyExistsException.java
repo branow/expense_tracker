@@ -8,7 +8,7 @@ import java.util.Objects;
  * */
 public class EntityAlreadyExistsException extends EntityOperationException {
 
-    private static final String MESSAGE = "%s creation exception: there can not be two"
+    private static final String MESSAGE = "%s creation exception: there can not be two "
             + "entities with the same %s = %s";
 
 

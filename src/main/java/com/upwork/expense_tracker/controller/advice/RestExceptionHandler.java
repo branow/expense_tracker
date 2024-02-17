@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -21,6 +22,13 @@ import java.util.stream.Collectors;
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
+
+    @ExceptionHandler(AuthenticationException.class)
+    protected ResponseEntity<Object> handleAuthentication(AuthenticationException ex) {
+        String error = ex.getMessage();
+        System.out.println(error);
+        return buildResponseEntityForbidden(ex, error);
+    }
 
     @ExceptionHandler(TokenRefreshException.class)
     protected ResponseEntity<Object> handleTokenRefresh(TokenRefreshException ex) {
