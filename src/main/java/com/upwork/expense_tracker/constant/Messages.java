@@ -1,5 +1,6 @@
 package com.upwork.expense_tracker.constant;
 
+@Deprecated
 public class Messages {
 
     private Messages() {

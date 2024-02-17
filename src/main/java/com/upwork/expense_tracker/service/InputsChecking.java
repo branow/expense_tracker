@@ -18,6 +18,7 @@ import com.upwork.expense_tracker.entity.UpdateProfile;
 import com.upwork.expense_tracker.entity.User;
 import com.upwork.expense_tracker.repository.UserRepository;
 
+@Deprecated
 @Service
 public class InputsChecking {
 

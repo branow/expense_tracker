@@ -1,5 +1,11 @@
 package com.upwork.expense_tracker.entity;
 
+import com.upwork.expense_tracker.dto.ProfileUpdatingRequest;
+
+/**
+ * It's better to use {@link ProfileUpdatingRequest}
+ * */
+@Deprecated
 public class UpdateProfile {
 
     private String profile;

@@ -1,5 +1,11 @@
 package com.upwork.expense_tracker.entity;
 
+import com.upwork.expense_tracker.dto.UserLoginRequest;
+
+/**
+ * It's better to use {@link UserLoginRequest}
+ * */
+@Deprecated
 public class LoginUser {
 
     String email;

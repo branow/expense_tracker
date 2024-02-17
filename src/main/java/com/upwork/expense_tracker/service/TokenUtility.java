@@ -12,6 +12,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+/**
+ * It's better to use {@link JwtService}
+ * */
+@Deprecated
 @Component
 public class TokenUtility {
 
